@@ -1,0 +1,79 @@
+{
+  "model_name": "DD1_tf",
+  "framework": "tensorflow",
+  "architecture": "MLP_2x128_softplus",
+  "best_set": "D",
+  "best_L": 30,
+  "feature_names": [
+    "steer",
+    "ay",
+    "yr",
+    "vx"
+  ],
+  "input_dim": 120,
+  "feature_bounds": {
+    "steer": [
+      -1.22,
+      1.22
+    ],
+    "ay": [
+      -20.0,
+      20.0
+    ],
+    "yr": [
+      -2.0,
+      2.0
+    ],
+    "vx": [
+      0.0,
+      30.0
+    ],
+    "vy": [
+      -2.5,
+      2.5
+    ]
+  },
+  "scaler_Y_mean": [
+    0.0395758016470369,
+    0.024360214572569188
+  ],
+  "scaler_Y_scale": [
+    0.39057855847640427,
+    0.23795556305030505
+  ],
+  "DT": 0.05,
+  "V_MIN": 5.0,
+  "n_params": 32258,
+  "val_metrics": {
+    "rmse_vy": 0.043647877871990204,
+    "mae_vy": 0.018618348985910416,
+    "r2_vy": 0.9866176908835769,
+    "rmse_yr": 0.019305650144815445,
+    "mae_yr": 0.00842056144028902,
+    "r2_yr": 0.9943214892409742
+  },
+  "test_metrics": {
+    "rmse_vy": 0.07505817711353302,
+    "mae_vy": 0.030535012483596802,
+    "r2_vy": 0.9677454009652138,
+    "rmse_yr": 0.028309699147939682,
+    "mae_yr": 0.01454139593988657,
+    "r2_yr": 0.9916585879400373
+  },
+  "seed": 7,
+  "train_towns": [
+    "Town04",
+    "Town06"
+  ],
+  "test_town": "Town03",
+  "casadi_note": "W matrices stored transposed (n_out, n_in): use as W @ x + b",
+  "excluded_files": {
+    "Town03": [
+      33,
+      34
+    ],
+    "Town06": [
+      "25_def"
+    ]
+  }
+}

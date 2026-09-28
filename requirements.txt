@@ -1,0 +1,15 @@
+# Cliente Python para CARLA 0.9.16 + controladores del Cap. 4
+# Nota: verifica versiones exactas con `pip freeze` en tu entorno de trabajo antes de publicar,
+# estas son cotas razonables, no un lock file verificado.
+
+numpy>=1.23,<2.0
+scipy>=1.9
+matplotlib>=3.6
+casadi>=3.6
+tensorflow>=2.12
+pygame>=2.1
+jupyter>=1.0
+ipykernel>=6.0
+
+# Wheel oficial de CARLA (no está en PyPI), instalar desde la carpeta del simulador:
+# pip install ../carla/dist/carla-0.9.16-cp312-cp312-win_amd64.whl

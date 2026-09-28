@@ -1,0 +1,96 @@
+{
+  "model_name": "PINN1_v7",
+  "framework": "tensorflow",
+  "architecture": "MLP_3x96_softplus_PhysicsGuard_BicycleModel_2stage",
+  "enc_units": 96,
+  "n_enc_layers": 3,
+  "best_set": "D",
+  "best_L": 40,
+  "feature_names": [
+    "steer",
+    "ay",
+    "yr",
+    "vx"
+  ],
+  "input_dim": 160,
+  "feature_bounds": {
+    "steer": [
+      -1.22,
+      1.22
+    ],
+    "ay": [
+      -20.0,
+      20.0
+    ],
+    "yr": [
+      -2.0,
+      2.0
+    ],
+    "vx": [
+      0.0,
+      30.0
+    ],
+    "vy": [
+      -2.5,
+      2.5
+    ]
+  },
+  "DT": 0.05,
+  "V_MIN": 5.0,
+  "CF_BOUNDS": [
+    0.0,
+    500000.0
+  ],
+  "CR_BOUNDS": [
+    0.0,
+    500000.0
+  ],
+  "LAMBDA_PARAM": 3.0,
+  "FC_SMOOTH": 0.5,
+  "CF_NOM": 130000.0,
+  "CR_NOM": 250000.0,
+  "CF_VALID_THRESH": 1.0,
+  "LR_ENC": 0.001,
+  "EPOCHS_ENC": 200,
+  "LR_FT": 0.0005,
+  "EPOCHS_FT": 150,
+  "val_metrics": {
+    "rmse_vy": 0.03293272852897644,
+    "r2_vy": 0.9923939905129373,
+    "rmse_yr": 0.01748056150972843,
+    "r2_yr": 0.9953519199043512,
+    "med_pred_Cf": 119953.7421875,
+    "med_pred_Cr": 260256.34375,
+    "rmse_Cf": 39339.61328125,
+    "med_tgt_Cf": 121602.1640625,
+    "rmse_Cr": 51570.5234375,
+    "med_tgt_Cr": 260116.453125
+  },
+  "test_metrics": {
+    "rmse_vy": 0.0411066934466362,
+    "r2_vy": 0.9885149020701647,
+    "rmse_yr": 0.028474973514676094,
+    "r2_yr": 0.98965223133564,
+    "med_pred_Cf": 107515.734375,
+    "med_pred_Cr": 247913.09375
+  },
+  "epochs_run_enc": 93,
+  "epochs_run_ft": 21,
+  "seed": 7,
+  "physical_params": {
+    "IZ": 21000.0,
+    "LF": 3.01815,
+    "LR": 2.61195,
+    "MASS_PATTERN": [
+      4200.0,
+      4200.0,
+      4800.0,
+      4800.0,
+      5400.0,
+      5400.0,
+      6000.0,
+      6000.0
+    ]
+  },
+  "training_strategy": "Stage1=ParamLoss(encoder_only), Stage2=CombinedLoss(warm_start)"
+}
