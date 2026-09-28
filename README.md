@@ -1,45 +1,35 @@
 <div align="center">
 
-# Control lateral de un vehículo autónomo en maniobras de evasión
-### Comparación Stanley · NMPC-MD · NMPC-DD · NMPC-PINN en CARLA 0.9.16
+# Lateral Control of an Autonomous Vehicle During Obstacle-Evasion Maneuvers
+### A comparison of Stanley, NMPC-MD, NMPC-DD, and NMPC-PINN in CARLA 0.9.16
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![CARLA](https://img.shields.io/badge/CARLA-0.9.16-orange.svg)
 ![Python](https://img.shields.io/badge/python-3.12-blue.svg)
-![Status](https://img.shields.io/badge/status-validado-brightgreen.svg)
+![Status](https://img.shields.io/badge/status-validated-brightgreen.svg)
 
 </div>
 
-Código y resultados finales de la tesis de maestría **"Diseño de un Sistema de Control para un
-Vehículo Móvil en Maniobras de Evasión de Obstáculos en Escenarios de Emergencia"**
-(Maestría en Control y Automatización, PUCP), validados en el simulador
-[CARLA](https://carla.org/) 0.9.16 sobre un modelo identificado del bus Fusorosa
-(m = 4800 kg, l_f = 3.018 m, l_r = 2.612 m, I_z = 21000 kg·m²).
+This repository presents the validation code and results from my master's thesis, **“Design of a Control System for a Mobile Vehicle in Emergency Obstacle-Evasion Scenarios”**, completed in the Master's Program in Control and Automation at the Pontifical Catholic University of Peru (PUCP). The work was validated in [CARLA](https://carla.org/) 0.9.16 using an identified model of the Fusorosa bus (m = 4800 kg, l_f = 3.018 m, l_r = 2.612 m, I_z = 21000 kg·m²).
 
-Este repositorio contiene **solo los resultados finales de validación (Capítulo 4)**: cuatro
-controladores laterales comparados en condiciones idénticas, más un análisis de sensibilidad
-(masa / fricción / velocidad) que evidencia la capacidad de generalización de cada uno. No
-incluye el desarrollo de modelado (Cap. 2) ni el diseño/tuning de controladores (Cap. 3) —
-ese proceso de investigación se mantiene en el repositorio de trabajo privado.
+The repository contains **the final validation results (Chapter 4 only)**: four lateral controllers compared under identical conditions, together with a sensitivity analysis (mass / friction / speed) evaluating each controller's generalization capability. It does not include the modeling development (Chapter 2) or controller design and tuning (Chapter 3); that research process remains in the private working repository.
 
----
+## Controllers
 
-## Controladores comparados
-
-| # | Controlador | Descripción |
+| # | Controller | Description |
 |---|---|---|
-| 1 | **Stanley** | Ley de control geométrica con feedforward de curvatura |
-| 2 | **NMPC-MD** | NMPC con modelo dinámico (bicicleta 5-DoF, parámetros identificados del Fusorosa) |
-| 3 | **NMPC-DD** | NMPC con modelo *data-driven* (MLP), linealizado numéricamente fuera de CasADi |
-| 4 | **NMPC-PINN** | NMPC con modelo *physics-informed* (MLP + restricciones físicas) |
+| 1 | **Stanley** | Geometric control law with curvature feedforward |
+| 2 | **NMPC-MD** | NMPC with a dynamic model (5-DoF bicycle model, parameters identified for the Fusorosa) |
+| 3 | **NMPC-DD** | NMPC with a data-driven model (MLP), numerically linearized outside CasADi |
+| 4 | **NMPC-PINN** | NMPC with a physics-informed model (MLP + physical constraints) |
 
-## Resultado principal — Town07 (ruta no vista en entrenamiento)
+## Main result — Town07 (route unseen during training)
 
 <div align="center">
-<img src="assets/fig_metricas_barras.png" alt="Métricas comparativas de los 4 controladores en Town07" width="85%">
+<img src="assets/fig_metricas_barras.png" alt="Comparative metrics for the four controllers in Town07" width="85%">
 </div>
 
-| Controlador | RMSE_cte [m] | MAE_cte [m] | E_max [m] | TV_δ [rad] |
+| Controller | RMSE_cte [m] | MAE_cte [m] | E_max [m] | TV_δ [rad] |
 |---|---|---|---|---|
 | Stanley | 1.128 | 0.589 | 6.178 | 69.77 |
 | NMPC-MD | 0.580 | 0.300 | 2.803 | 48.34 |
@@ -47,107 +37,78 @@ ese proceso de investigación se mantiene en el repositorio de trabajo privado.
 | NMPC-PINN | 0.449 | 0.276 | 1.871 | 47.32 |
 
 <div align="center">
-<img src="assets/fig_cte_comparacion.png" alt="Error de seguimiento (CTE) a lo largo de la ruta, Town07" width="85%">
+<img src="assets/fig_cte_comparacion.png" alt="Cross-track error (CTE) over the Town07 route" width="85%">
 </div>
 
-*(Ver [`resultados/06_comparacion_final_town07`](resultados/06_comparacion_final_town07) para el notebook y las figuras completas.)*
+See [`resultados/06_comparacion_final_town07`](resultados/06_comparacion_final_town07) for the analysis notebook and complete figures.
 
-## Hallazgo clave — generalización ante condiciones no vistas
+## Key finding — generalization to unseen conditions
 
-En la ruta nominal de Town07, NMPC-DD y NMPC-PINN rinden de forma muy similar. La diferencia
-aparece en el **análisis de sensibilidad** (masa, coeficiente de fricción, velocidad de crucero —
-[`resultados/07_escenarios_sensibilidad`](resultados/07_escenarios_sensibilidad)):
+On the nominal Town07 route, NMPC-DD and NMPC-PINN perform very similarly. Their difference emerges in the **sensitivity analysis** (mass, friction coefficient, and cruise speed; see [`resultados/07_escenarios_sensibilidad`](resultados/07_escenarios_sensibilidad)):
 
 <div align="center">
-<img src="assets/fig_comparativa_cruzada.png" alt="Comparación cruzada de sensibilidad entre escenarios" width="85%">
+<img src="assets/fig_comparativa_cruzada.png" alt="Cross-comparison of sensitivity across scenarios" width="85%">
 </div>
 
-El modelo DD, al ser puramente estadístico, **diverge en combinaciones fuera de su distribución
-de entrenamiento** (ver los casos `*_fail.npy` en `07_escenarios_sensibilidad/`), mientras que
-**NMPC-PINN se mantiene estable en todos los escenarios evaluados** gracias a las restricciones
-físicas incorporadas durante el entrenamiento. Esa es la evidencia cuantitativa de generalización
-que sostiene la conclusión principal de la tesis.
+Because the DD model is purely statistical, it **diverges in combinations outside its training distribution** (see the `*_fail.npy` cases in `07_escenarios_sensibilidad/`). In contrast, **NMPC-PINN remains stable across all evaluated scenarios** due to the physical constraints incorporated during training. This is the quantitative generalization evidence supporting the thesis's main conclusion.
 
-## Evidencia en video
+## Simulation videos
 
-Grabaciones de las corridas en CARLA de los 4 controladores en Town07, más las variantes de
-escenario (Esc. 1/2) y la versión con estimación de estado (PINN-EKF):
+Recordings of the CARLA runs are available for the four controllers in Town07, the scenario variants (Scenarios 1/2), and the state-estimation variant (PINN-EKF):
 
-📁 **[Carpeta de videos (Google Drive)](https://drive.google.com/drive/folders/1M352pA8DdquowHwVZXGbhakHKtNLHEvh?usp=drive_link)**
+📁 **[Video folder (Google Drive)](https://drive.google.com/drive/folders/1M352pA8DdquowHwVZXGbhakHKtNLHEvh?usp=drive_link)**
 
-| Video | Controlador |
+| Video | Controller / experiment |
 |---|---|
 | `controladorStanley_Tesis_V1.mp4` | Stanley — Town07 |
 | `controladorNMPC-MD_Tesis_V2.mp4` | NMPC-MD — Town07 |
 | `controladorNMPC-DD_Tesis_V3.mp4` | NMPC-DD — Town07 |
 | `controladorNMPC-PINN_Tesis_V4.mp4` | NMPC-PINN — Town07 |
-| `NMPC-*_Escenario1_V5-V8.mp4` | DD/PINN — barrido de sensibilidad, escenario 1 |
-| `NMPC-*-Escenario2_V9-V12.mp4` | DD/PINN — barrido de sensibilidad, escenario 2 |
-| `NMPC-PINN_V13.mp4` / `NMPC-PINN-EKF_V14.mp4` | PINN sin/con estimación de estado (EKF) |
+| `NMPC-*_Escenario1_V5-V8.mp4` | DD/PINN — sensitivity sweep, Scenario 1 |
+| `NMPC-*-Escenario2_V9-V12.mp4` | DD/PINN — sensitivity sweep, Scenario 2 |
+| `NMPC-PINN_V13.mp4` / `NMPC-PINN-EKF_V14.mp4` | PINN without/with state estimation (EKF) |
 
-> No se subieron al repositorio: son ~475 MB en total y dos archivos superan el límite de 100 MB
-> por archivo de GitHub. Si en algún momento se prioriza tener una copia con DOI permanente
-> (en vez de depender de una cuenta de Drive personal), estos videos son candidatos naturales
-> para subir a [Zenodo](https://zenodo.org/) junto con los `.npy`/`.keras` pesados.
+> The videos are not included in this repository: they total approximately 475 MB, and two files exceed GitHub's 100 MB per-file limit. If a permanent DOI-backed copy is preferred over relying on a personal Drive account, these videos are natural candidates for deposit on [Zenodo](https://zenodo.org/) alongside the larger `.npy`/`.keras` files.
 
----
+## Repository structure
 
-## Estructura
-
-```
+```text
 repo/
-├── assets/                          # figuras del README
-├── common/                          # copia de referencia de las utilidades del cliente CARLA
-├── data/                            # copia de referencia del dataset de ruta Town07
+├── assets/                          # Figures used in this README
+├── common/                          # Reference copy of the CARLA client utilities
+├── data/                            # Reference copy of the Town07 route dataset
 └── resultados/
     ├── 01_stanley_town07/
     ├── 02_nmpc_dinamico_town07/
     ├── 03_nmpc_datadriven_town07/
     ├── 04_nmpc_pinn_town07/
-    ├── 05_nmpc_pinn_town07_ekf/      # variante con estimación de estado (EKF) — análisis de robustez
-    ├── 06_comparacion_final_town07/  # comparación de los 4 controladores + figuras finales
-    └── 07_escenarios_sensibilidad/   # barrido masa/μ/velocidad en Town04-Esc.2 y Town06-Esc.1
-        ├── figuras/                  # figuras finales (comparativas + sensibilidad, .png/.pdf)
-        └── *.ipynb, *.npy            # notebooks de análisis y datos del barrido
+    ├── 05_nmpc_pinn_town07_ekf/      # State-estimation (EKF) variant — robustness analysis
+    ├── 06_comparacion_final_town07/  # Comparison of the four controllers + final figures
+    └── 07_escenarios_sensibilidad/   # Mass/μ/speed sweep in Town04-Scenario 2 and Town06-Scenario 1
+        ├── figuras/                  # Final comparison and sensitivity figures (.png/.pdf)
+        └── *.ipynb, *.npy            # Analysis notebooks and sweep data
 ```
 
-Cada carpeta `01`–`05` es **autocontenida**: trae su propio script de control (`.py`), las
-utilidades del cliente CARLA (`HUD.py`, `World.py`, etc.), el dataset de ruta
-(`traj_dataset_Town07.npy`), el notebook de análisis (`.ipynb`, con las figuras ya generadas
-como salida embebida), los datos finales de la corrida (`.npy`) y, cuando aplica, el modelo
-entrenado (`models/*.keras` + `scalers*.pkl`). Las copias en `common/` y `data/` son solo de
-referencia para no tener que abrir cinco carpetas para ver el mismo archivo.
+Each directory `01`–`05` is **self-contained**: it includes its own control script (`.py`), CARLA client utilities (`HUD.py`, `World.py`, etc.), route dataset (`traj_dataset_Town07.npy`), analysis notebook (`.ipynb`, with generated figures saved as outputs), final run data (`.npy`) and, where applicable, the trained model (`models/*.keras` + `scalers*.pkl`). The copies in `common/` and `data/` are reference copies, provided to make the shared files accessible without opening five experiment directories.
 
-## Reproducir localmente
+## Local reproduction
 
-1. Instalar CARLA 0.9.16 y correr el servidor (nativo o con la imagen oficial `carlasim/carla`).
-2. Crear el entorno del cliente Python:
+1. Install CARLA 0.9.16 and start the server (natively or with the official `carlasim/carla` image).
+2. Set up the Python client environment:
    ```bash
    pip install -r requirements.txt
    ```
-   El paquete `carla` no está en PyPI: se instala desde el wheel oficial que trae la
-   distribución de CARLA 0.9.16 en `PythonAPI/carla/dist/` (ej. `carla-0.9.16-cp312-cp312-win_amd64.whl`
-   para Python 3.12 en Windows — usa el wheel que corresponda a tu versión de Python/SO).
-3. Entrar a la carpeta del resultado que quieras correr (ej. `resultados/04_nmpc_pinn_town07`)
-   y ejecutar el script de control (`python NMPCPINN_Final_Town07.py`) con el servidor CARLA activo.
-   No hace falta copiar nada más: cada carpeta ya trae todo lo que sus scripts necesitan.
-4. Para ver el análisis sin correr CARLA, basta con abrir el `.ipynb` correspondiente — ya
-   contiene las figuras generadas como salida guardada.
+   The `carla` package is not available on PyPI. Install it from the wheel included with the CARLA 0.9.16 distribution under `PythonAPI/carla/dist/` (for example, `carla-0.9.16-cp312-cp312-win_amd64.whl` for Python 3.12 on Windows; use the wheel matching your Python version and operating system).
+3. Enter the result directory you want to run (for example, `resultados/04_nmpc_pinn_town07`) and execute its control script (`python NMPCPINN_Final_Town07.py`) while the CARLA server is running. No additional files need to be copied; each directory contains everything its scripts require.
+4. To review the analysis without running CARLA, open the corresponding `.ipynb`; it contains the saved figure outputs.
 
-> Los `.npy` de resultados y los `.keras` de los modelos son binarios medianos (repo completo
-> ≈140 MB, sobre todo por `07_escenarios_sensibilidad`). Si vas a versionar esto en GitHub,
-> considera [Git LFS](https://git-lfs.github.com/) para los `.npy`/`.keras` (no para `assets/`,
-> que debe quedar en git normal para que el README se vea sin descargar nada), o archivar todo
-> en [Zenodo](https://zenodo.org/) con un DOI citable desde la tesis.
 
-## Licencia
+## License
 
-MIT — ver [`LICENSE`](LICENSE).
+MIT — see [`LICENSE`](LICENSE).
 
-## Cita
+## Citation
 
-Si usas este código, cita la tesis:
+If you use this code, cite the thesis:
 
-> Segovia Razo, A. F. (2026). *Diseño de un Sistema de Control para un Vehículo Móvil en
-> Maniobras de Evasión de Obstáculos en Escenarios de Emergencia*. Tesis de maestría,
-> Maestría en Control y Automatización, Pontificia Universidad Católica del Perú.
+> Segovia Razo, A. F. (2026). *Design of a Control System for a Mobile Vehicle in Emergency Obstacle-Evasion Scenarios*. Master's thesis, Master's Program in Control and Automation, Pontifical Catholic University of Peru.
